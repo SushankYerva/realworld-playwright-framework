@@ -1,8 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
-
+import path from 'node:path';
 const baseURL =
   process.env.BASE_URL ?? 'https://demo.realworld.show';
-
+const authFile = path.join(
+  process.cwd(),
+  'playwright',
+  '.auth',
+  'user.json',
+);
 export default defineConfig({
   testDir: './tests',
 
@@ -53,9 +58,32 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'chromium',
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+
+    {
+      name: 'api',
+      testMatch: /.*\/api\/.*\.spec\.ts/,
+    },
+
+    {
+      name: 'chromium-anonymous',
+      testMatch:
+        /.*\/ui\/(smoke|regression)\/.*\.spec\.ts/,
       use: {
         ...devices['Desktop Chrome'],
+      },
+    },
+
+    {
+      name: 'chromium-authenticated',
+      testMatch:
+        /.*\/ui\/authenticated\/.*\.spec\.ts/,
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: authFile,
       },
     },
   ],
