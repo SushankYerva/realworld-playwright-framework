@@ -8,12 +8,14 @@
     "test:api": "playwright test --project=api",
     "test:anonymous": "playwright test --project=chromium-anonymous",
     "test:authenticated": "playwright test --project=chromium-authenticated",
+    "test:articles": "playwright test tests/ui/authenticated/article-lifecycle.spec.ts --project=chromium-authenticated",
     "test:smoke": "playwright test --grep @smoke",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "report": "playwright show-report reports/html",
     "typecheck": "tsc --noEmit"
+    
   },
   "keywords": [],
   "type": "commonjs",

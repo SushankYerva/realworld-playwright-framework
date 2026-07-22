@@ -4,6 +4,13 @@ import type {
 } from '@playwright/test';
 
 import type {
+  Article,
+  ArticleResponse,
+  NewArticle,
+  UpdateArticle,
+} from '../models/article.model';
+
+import type {
   NewUser,
   RegisteredUser,
   UserResponse,
@@ -14,7 +21,8 @@ export class RealWorldApiClient {
 
   constructor(
     private readonly request: APIRequestContext,
-    apiBaseUrl = process.env.API_URL ??
+    apiBaseUrl =
+      process.env.API_URL ??
       'https://api.realworld.show/api',
   ) {
     this.apiBaseUrl = apiBaseUrl.replace(/\/$/, '');
@@ -53,9 +61,7 @@ export class RealWorldApiClient {
     const response = await this.request.get(
       `${this.apiBaseUrl}/user`,
       {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
+        headers: this.authHeaders(token),
       },
     );
 
@@ -68,6 +74,136 @@ export class RealWorldApiClient {
       (await response.json()) as UserResponse;
 
     return responseBody.user;
+  }
+
+  async createArticle(
+    token: string,
+    article: NewArticle,
+  ): Promise<Article> {
+    const response = await this.request.post(
+      `${this.apiBaseUrl}/articles`,
+      {
+        headers: this.authHeaders(token),
+        data: {
+          article,
+        },
+      },
+    );
+
+    await this.validateResponse(
+      response,
+      'Create article',
+    );
+
+    const responseBody =
+      (await response.json()) as ArticleResponse;
+
+    return responseBody.article;
+  }
+
+  async getArticle(
+    slug: string,
+    token?: string,
+  ): Promise<Article> {
+    const response = await this.request.get(
+      `${this.apiBaseUrl}/articles/${encodeURIComponent(slug)}`,
+      {
+        headers: token
+          ? this.authHeaders(token)
+          : undefined,
+      },
+    );
+
+    await this.validateResponse(
+      response,
+      `Get article ${slug}`,
+    );
+
+    const responseBody =
+      (await response.json()) as ArticleResponse;
+
+    return responseBody.article;
+  }
+
+  async updateArticle(
+    token: string,
+    slug: string,
+    article: UpdateArticle,
+  ): Promise<Article> {
+    const response = await this.request.put(
+      `${this.apiBaseUrl}/articles/${encodeURIComponent(slug)}`,
+      {
+        headers: this.authHeaders(token),
+        data: {
+          article,
+        },
+      },
+    );
+
+    await this.validateResponse(
+      response,
+      `Update article ${slug}`,
+    );
+
+    const responseBody =
+      (await response.json()) as ArticleResponse;
+
+    return responseBody.article;
+  }
+
+  async deleteArticle(
+    token: string,
+    slug: string,
+  ): Promise<void> {
+    const response = await this.request.delete(
+      `${this.apiBaseUrl}/articles/${encodeURIComponent(slug)}`,
+      {
+        headers: this.authHeaders(token),
+      },
+    );
+
+    // Makes cleanup safe when the test already deleted it.
+    if (response.status() === 404) {
+      return;
+    }
+
+    await this.validateResponse(
+      response,
+      `Delete article ${slug}`,
+    );
+  }
+
+  async articleExists(
+    slug: string,
+    token?: string,
+  ): Promise<boolean> {
+    const response = await this.request.get(
+      `${this.apiBaseUrl}/articles/${encodeURIComponent(slug)}`,
+      {
+        headers: token
+          ? this.authHeaders(token)
+          : undefined,
+      },
+    );
+
+    if (response.status() === 404) {
+      return false;
+    }
+
+    await this.validateResponse(
+      response,
+      `Check article ${slug}`,
+    );
+
+    return true;
+  }
+
+  private authHeaders(
+    token: string,
+  ): Record<string, string> {
+    return {
+      Authorization: `Token ${token}`,
+    };
   }
 
   private async validateResponse(
@@ -83,7 +219,7 @@ export class RealWorldApiClient {
     throw new Error(
       [
         `${operation} failed.`,
-        `HTTP status: ${response.status()}`,
+        `HTTP status: ${response.status()}.`,
         `Response: ${responseBody}`,
       ].join(' '),
     );
