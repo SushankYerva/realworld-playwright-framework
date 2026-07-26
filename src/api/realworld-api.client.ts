@@ -224,4 +224,37 @@ export class RealWorldApiClient {
       ].join(' '),
     );
   }
+  
+  async getArticleStatus(
+    slug: string,
+    token?: string,
+    ): Promise<number> {
+    const response = await this.request.get(
+      `${this.apiBaseUrl}/articles/${encodeURIComponent(slug)}`,
+      {
+        headers: token
+          ? this.authHeaders(token)
+          : undefined,
+      },
+    );
+
+    return response.status();
+  }
+
+  async deleteArticleStatus(
+    token: string,
+    slug: string,
+    ): Promise<number> {
+    const response = await this.request.delete(
+      `${this.apiBaseUrl}/articles/${encodeURIComponent(slug)}`,
+      {
+        headers: this.authHeaders(token),
+      },
+    );
+
+    return response.status();
+  }
+
+
+
 }

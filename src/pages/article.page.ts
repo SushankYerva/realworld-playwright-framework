@@ -37,9 +37,70 @@ export class ArticlePage {
   }
 
   async open(slug: string): Promise<void> {
-    await this.page.goto(
-      `/article/${encodeURIComponent(slug)}`,
+    const encodedSlug = encodeURIComponent(slug);
+
+    const articleResponsePromise =
+      this.page.waitForResponse(
+        (response) => {
+          const url = new URL(response.url());
+
+          return (
+            response.request().method() === 'GET' &&
+            url.pathname.endsWith(
+              `/api/articles/${encodedSlug}`,
+            )
+          );
+        },
+        {
+          timeout: 20_000,
+        },
+      );
+
+    const navigationResponse = await this.page.goto(
+      `/article/${encodedSlug}`,
+      {
+        waitUntil: 'domcontentloaded',
+      },
     );
+
+    if (
+      navigationResponse &&
+      !navigationResponse.ok()
+    ) {
+      throw new Error(
+        `Article page navigation failed with HTTP ${navigationResponse.status()}`,
+      );
+    }
+
+    const articleResponse =
+      await articleResponsePromise;
+
+    if (!articleResponse.ok()) {
+  const responseBody =
+    await articleResponse.text();
+
+  const requestHeaders =
+    await articleResponse
+      .request()
+      .allHeaders();
+
+  throw new Error(
+      [
+        `Article API request failed for ${slug}.`,
+        `Request URL: ${articleResponse.url()}.`,
+        `HTTP status: ${articleResponse.status()}.`,
+        `Authorization header present: ${
+          Boolean(requestHeaders.authorization)
+        }.`,
+        `Response: ${responseBody}`,
+      ].join(' '),
+    );
+  }
+
+    await this.articleTitle.waitFor({
+      state: 'visible',
+      timeout: 15_000,
+    });
   }
 
   async openEditor(): Promise<void> {
@@ -72,5 +133,15 @@ export class ArticlePage {
     }
 
     return decodeURIComponent(slug);
+  }
+
+
+  authorLink(username: string): Locator {
+    return this.page
+      .getByRole('link', {
+        name: username,
+        exact: true,
+      })
+      .first();
   }
 }

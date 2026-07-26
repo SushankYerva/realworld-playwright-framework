@@ -14,7 +14,8 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "report": "playwright show-report reports/html",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:authorization": "playwright test --grep @security --workers=1"
     
   },
   "keywords": [],
