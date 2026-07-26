@@ -4,19 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test",
-    "test:api": "playwright test --project=api",
-    "test:anonymous": "playwright test --project=chromium-anonymous",
-    "test:authenticated": "playwright test --project=chromium-authenticated",
-    "test:articles": "playwright test tests/ui/authenticated/article-lifecycle.spec.ts --project=chromium-authenticated",
-    "test:smoke": "playwright test --grep @smoke",
-    "test:headed": "playwright test --headed",
+    "test": "playwright test --workers=1",
+    "test:typecheck": "tsc --noEmit",
+
+    "test:api": "playwright test --project=api --workers=1",
+    "test:smoke": "playwright test --grep @smoke --project=chromium-anonymous --project=chromium-authenticated --workers=1",
+    "test:regression": "playwright test --grep @regression --workers=1",
+    "test:security": "playwright test --grep @security --workers=1",
+
+    "test:chromium": "playwright test --project=chromium-anonymous --project=chromium-authenticated --workers=1",
+    "test:firefox": "playwright test --project=firefox-anonymous --project=firefox-authenticated --workers=1",
+    "test:webkit": "playwright test --project=webkit-anonymous --project=webkit-authenticated --workers=1",
+
+    "test:cross-browser": "playwright test --grep @smoke --project=chromium-anonymous --project=chromium-authenticated --project=firefox-anonymous --project=firefox-authenticated --project=webkit-anonymous --project=webkit-authenticated --workers=1",
+
+    "test:headed": "playwright test --headed --workers=1",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
-    "report": "playwright show-report reports/html",
-    "typecheck": "tsc --noEmit",
-    "test:authorization": "playwright test --grep @security --workers=1"
-    
+    "report": "playwright show-report reports/html"
   },
   "keywords": [],
   "type": "commonjs",

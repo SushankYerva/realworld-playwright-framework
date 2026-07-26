@@ -7,7 +7,14 @@ test.describe(
   'Article account isolation',
   () => {
     test(
-      'one account cannot access or delete another account article @security @api',
+      'one account cannot access or delete another account article',
+      {
+        tag: [
+          '@security',
+          '@regression',
+          '@api',
+        ],
+      },
       async ({
         authorizationScenario,
       }) => {

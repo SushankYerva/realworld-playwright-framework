@@ -8,7 +8,14 @@ import { EditorPage } from '../../../src/pages/editor.page';
 
 test.describe('Article lifecycle', () => {
   test(
-    'author can read, update and delete an article @regression',
+    'author can read, update and delete an article',
+    {
+      tag: [
+        '@regression',
+        '@ui',
+        '@authenticated',
+      ],
+    },
     async ({
       page,
       realWorldApi,

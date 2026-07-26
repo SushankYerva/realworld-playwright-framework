@@ -3,7 +3,13 @@ import {
   expect,
 } from '@playwright/test';
 
-import { RealWorldApiClient } from '../api/realworld-api.client';
+import {
+  RealWorldApiClient,
+} from '../api/realworld-api.client';
+
+import {
+  getTestEnvironment,
+} from '../config/environment';
 
 interface ApiFixtures {
   realWorldApi: RealWorldApiClient;
@@ -11,7 +17,12 @@ interface ApiFixtures {
 
 export const test = base.extend<ApiFixtures>({
   realWorldApi: async ({ request }, use) => {
-    const apiClient = new RealWorldApiClient(request);
+    const environment = getTestEnvironment();
+
+    const apiClient = new RealWorldApiClient(
+      request,
+      environment.apiBaseUrl,
+    );
 
     await use(apiClient);
   },

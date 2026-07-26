@@ -1,5 +1,6 @@
 import type { Article } from '../models/article.model';
 import type { RegisteredUser } from '../models/user.model';
+import { getTestEnvironment, } from '../config/environment';
 
 import { RealWorldApiClient } from '../api/realworld-api.client';
 
@@ -12,6 +13,8 @@ import {
   createUniqueArticle,
   createUniqueUser,
 } from '../utils/test-data.factory';
+
+const environment = getTestEnvironment();
 
 export interface AuthorizationScenario {
   article: Article;
@@ -42,10 +45,16 @@ export const test =
         await playwright.request.newContext();
 
       const ownerApi =
-        new RealWorldApiClient(ownerRequest);
+        new RealWorldApiClient(
+          ownerRequest,
+          environment.apiBaseUrl,
+        );
 
       const otherUserApi =
-        new RealWorldApiClient(otherUserRequest);
+        new RealWorldApiClient(
+          otherUserRequest,
+          environment.apiBaseUrl,
+        );
 
       let owner: RegisteredUser | undefined;
       let article: Article | undefined;

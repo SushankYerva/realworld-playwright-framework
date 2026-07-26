@@ -13,7 +13,14 @@ test.describe(
   () => {
     for (const route of protectedRoutes) {
       test(
-        `anonymous user cannot access ${route} @security @regression`,
+        `anonymous user cannot access ${route}`,
+        {
+          tag: [
+            '@security',
+            '@regression',
+            '@ui',
+          ],
+        },
         async ({ page }) => {
           await test.step(
             `Attempt to open ${route}`,
