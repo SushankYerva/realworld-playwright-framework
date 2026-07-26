@@ -1,32 +1,27 @@
-name: Playwright CI
+name: Playwright Cross-Browser
 
 on:
-  push:
-    branches:
-      - main
-
-  pull_request:
-    branches:
-      - main
-
   workflow_dispatch:
+
+  schedule:
+    - cron: "30 2 * * 1"
 
 permissions:
   contents: read
 
 concurrency:
-  group: playwright-ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: playwright-cross-browser
+  cancel-in-progress: false
 
 env:
   CI: true
   TEST_ENV: demo
 
 jobs:
-  quality-checks:
-    name: TypeScript quality checks
+  cross-browser-smoke:
+    name: Cross-browser smoke tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -45,42 +40,28 @@ jobs:
       - name: Run TypeScript checks
         run: npm run typecheck
 
-  chromium-smoke:
-    name: Chromium smoke tests
-    runs-on: ubuntu-latest
-    needs: quality-checks
-    timeout-minutes: 20
+      - name: Install Playwright browsers
+        run: >
+          npx playwright install --with-deps
+          chromium firefox webkit
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Configure Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Run Chromium smoke tests
+      - name: Run cross-browser smoke tests
         run: >
           npx playwright test
           --grep "@smoke"
           --project=chromium-anonymous
           --project=chromium-authenticated
+          --project=firefox-anonymous
+          --project=firefox-authenticated
+          --project=webkit-anonymous
+          --project=webkit-authenticated
           --workers=1
 
       - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-html-report
+          name: cross-browser-html-report
           path: reports/html/
           retention-days: 14
           if-no-files-found: warn
@@ -89,7 +70,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-junit-report
+          name: cross-browser-junit-report
           path: reports/junit/
           retention-days: 14
           if-no-files-found: warn
@@ -98,7 +79,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-failure-evidence
+          name: cross-browser-failure-evidence
           path: test-results/
           retention-days: 14
           if-no-files-found: warn

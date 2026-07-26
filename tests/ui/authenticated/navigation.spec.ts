@@ -5,7 +5,14 @@ import {
 
 test.describe('Authenticated navigation', () => {
   test(
-    'authenticated user sees protected navigation @smoke',
+    'authenticated user sees protected navigation',
+    {
+      tag: [
+        '@smoke',
+        '@ui',
+        '@authenticated',
+      ],
+    },
     async ({ page }) => {
       await page.goto('/');
 

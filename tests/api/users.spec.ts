@@ -7,7 +7,12 @@ import { createUniqueUser } from '../../src/utils/test-data.factory';
 
 test.describe('Users API', () => {
   test(
-    'registers a unique user @api',
+    'registers a unique user',
+    {
+        tag: [
+          '@api',
+        ],
+    },
     async ({ realWorldApi }) => {
       const newUser = createUniqueUser();
 

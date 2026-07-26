@@ -36,24 +36,42 @@ export default defineConfig({
     timeout: 10_000,
   },
 
-  reporter: [
-    ['list'],
-
-    [
-      'html',
-      {
-        outputFolder: 'reports/html',
-        open: 'never',
-      },
+  reporter: process.env.CI
+  ? [
+      ['github'],
+      ['line'],
+      [
+        'html',
+        {
+          outputFolder: 'reports/html',
+          open: 'never',
+        },
+      ],
+      [
+        'junit',
+        {
+          outputFile:
+            'reports/junit/results.xml',
+        },
+      ],
+    ]
+  : [
+      ['list'],
+      [
+        'html',
+        {
+          outputFolder: 'reports/html',
+          open: 'never',
+        },
+      ],
+      [
+        'junit',
+        {
+          outputFile:
+            'reports/junit/results.xml',
+        },
+      ],
     ],
-
-    [
-      'junit',
-      {
-        outputFile: 'reports/junit/results.xml',
-      },
-    ],
-  ],
 
   outputDir: 'test-results/artifacts',
 

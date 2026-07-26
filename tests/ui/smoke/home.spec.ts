@@ -3,7 +3,10 @@ import { HomePage } from '../../../src/pages/home.page';
 
 test.describe('RealWorld home page', () => {
   test(
-    'anonymous user can access the application @smoke',
+    'anonymous user can access the application',
+    {
+      tag: ['@smoke', '@ui'],
+    },
     async ({ page }) => {
       const homePage = new HomePage(page);
 
